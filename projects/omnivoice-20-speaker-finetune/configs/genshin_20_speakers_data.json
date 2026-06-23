@@ -1,0 +1,16 @@
+{
+    "train": [
+        {
+            "language_id": "zh",
+            "manifest_path": ["data/genshin_20_speakers/tokens/train/data.lst"],
+            "repeat": 1
+        }
+    ],
+    "dev": [
+        {
+            "language_id": "zh",
+            "manifest_path": ["data/genshin_20_speakers/tokens/dev/data.lst"],
+            "repeat": 1
+        }
+    ]
+}

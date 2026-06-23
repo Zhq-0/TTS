@@ -1,0 +1,302 @@
+﻿diff --git a/scripts/train_dots_tts.py b/scripts/train_dots_tts.py
+index 5d2f812..df44ed9 100644
+--- a/scripts/train_dots_tts.py
++++ b/scripts/train_dots_tts.py
+@@ -12,6 +12,8 @@ import torch
+ import yaml
+ from accelerate import Accelerator
+ from accelerate.utils import DistributedDataParallelKwargs, ProjectConfiguration
++import torch.nn as nn
++import torch.nn.functional as F
+ from torch.optim import AdamW
+ from transformers import get_cosine_schedule_with_warmup
+ 
+@@ -28,6 +30,126 @@ _DEBUG_BATCH_LIMIT = 3
+ _DEBUG_GRAD_EARLY_STEP_LIMIT = 3
+ 
+ 
++class _MergedLoRALinear(nn.Module):
++    """Linear layer with LoRA adapters that saves as a merged standard Linear."""
++
++    def __init__(
++        self,
++        linear: nn.Linear,
++        *,
++        rank: int,
++        alpha: float,
++        dropout: float,
++    ) -> None:
++        super().__init__()
++        if rank <= 0:
++            raise ValueError(f"LoRA rank must be positive, got {rank}.")
++        self.in_features = int(linear.in_features)
++        self.out_features = int(linear.out_features)
++        self.rank = int(rank)
++        self.alpha = float(alpha)
++        self.scaling = float(alpha) / float(rank)
++        self.weight = nn.Parameter(linear.weight.detach().clone(), requires_grad=False)
++        if linear.bias is None:
++            self.register_parameter("bias", None)
++        else:
++            self.bias = nn.Parameter(linear.bias.detach().clone(), requires_grad=False)
++        self.lora_A = nn.Parameter(
++            torch.empty(
++                self.rank,
++                self.in_features,
++                dtype=linear.weight.dtype,
++                device=linear.weight.device,
++            )
++        )
++        self.lora_B = nn.Parameter(
++            torch.zeros(
++                self.out_features,
++                self.rank,
++                dtype=linear.weight.dtype,
++                device=linear.weight.device,
++            )
++        )
++        self.dropout = nn.Dropout(float(dropout)) if dropout > 0 else nn.Identity()
++        nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
++
++    def forward(self, input_tensor: torch.Tensor) -> torch.Tensor:
++        base_weight = self.weight
++        base_bias = self.bias
++        if input_tensor.is_floating_point():
++            base_weight = base_weight.to(dtype=input_tensor.dtype)
++            if base_bias is not None:
++                base_bias = base_bias.to(dtype=input_tensor.dtype)
++        result = F.linear(input_tensor, base_weight, base_bias)
++        lora_input = self.dropout(input_tensor)
++        lora_A = self.lora_A.to(dtype=lora_input.dtype)
++        lora_B = self.lora_B.to(dtype=lora_input.dtype)
++        update = F.linear(F.linear(lora_input, lora_A), lora_B) * self.scaling
++        return result + update.to(dtype=result.dtype)
++
++    def _merged_weight(self) -> torch.Tensor:
++        delta = torch.matmul(self.lora_B, self.lora_A) * self.scaling
++        return self.weight + delta.to(dtype=self.weight.dtype)
++
++    def _save_to_state_dict(self, destination, prefix, keep_vars):
++        weight = self._merged_weight()
++        destination[prefix + "weight"] = weight if keep_vars else weight.detach()
++        if self.bias is not None:
++            destination[prefix + "bias"] = self.bias if keep_vars else self.bias.detach()
++
++    def extra_repr(self) -> str:
++        return (
++            f"in_features={self.in_features}, out_features={self.out_features}, "
++            f"rank={self.rank}, alpha={self.alpha}"
++        )
++
++
++def _module_name_matches(full_name: str, prefixes: tuple[str, ...]) -> bool:
++    return any(full_name.startswith(prefix) for prefix in prefixes)
++
++
++def _inject_lora_adapters(
++    model: nn.Module,
++    *,
++    module_patterns: list[str],
++    target_module_names: list[str],
++    rank: int,
++    alpha: float,
++    dropout: float,
++) -> tuple[int, int]:
++    prefixes = tuple(str(pattern) for pattern in module_patterns)
++    target_names = {str(name) for name in target_module_names}
++    replacements: list[tuple[nn.Module, str, nn.Linear, str]] = []
++    for parent_name, parent in model.named_modules():
++        for child_name, child in list(parent.named_children()):
++            if not isinstance(child, nn.Linear):
++                continue
++            full_name = f"{parent_name}.{child_name}" if parent_name else child_name
++            if not _module_name_matches(full_name, prefixes):
++                continue
++            if child_name not in target_names:
++                continue
++            replacements.append((parent, child_name, child, full_name))
++
++    for parent, child_name, child, _full_name in replacements:
++        setattr(
++            parent,
++            child_name,
++            _MergedLoRALinear(
++                child,
++                rank=rank,
++                alpha=alpha,
++                dropout=dropout,
++            ),
++        )
++
++    trainable_parameters = 0
++    for param in model.parameters():
++        if param.requires_grad:
++            trainable_parameters += int(param.numel())
++    return len(replacements), trainable_parameters
++
++
+ # region Training Step State
+ @dataclass(slots=True)
+ class _PreparedTrainingStep:
+@@ -88,6 +210,66 @@ class DotsTtsTrainingRun:
+         model = dots_tts_model.DotsTtsModel.from_pretrained(
+             self.cfg.train.pretrained_model_path
+         )
++        lora_patterns = self.cfg.train.lora_module_patterns
++        if lora_patterns:
++            for param in model.parameters():
++                param.requires_grad = False
++            lora_targets = self.cfg.train.lora_target_module_names or [
++                "q_proj",
++                "k_proj",
++                "v_proj",
++                "o_proj",
++                "gate_proj",
++                "up_proj",
++                "down_proj",
++                "fc1",
++                "fc2",
++            ]
++            matched_lora_modules, lora_trainable_params = _inject_lora_adapters(
++                model,
++                module_patterns=list(lora_patterns),
++                target_module_names=list(lora_targets),
++                rank=int(self.cfg.train.lora_rank),
++                alpha=float(self.cfg.train.lora_alpha),
++                dropout=float(self.cfg.train.lora_dropout),
++            )
++            if matched_lora_modules == 0:
++                raise ValueError(
++                    "train.lora_module_patterns did not match any Linear targets: "
++                    f"patterns={list(lora_patterns)} targets={list(lora_targets)}"
++                )
++            print(
++                "LoRA adapters enabled: "
++                f"patterns={list(lora_patterns)} "
++                f"targets={list(lora_targets)} "
++                f"rank={int(self.cfg.train.lora_rank)} "
++                f"alpha={float(self.cfg.train.lora_alpha)} "
++                f"dropout={float(self.cfg.train.lora_dropout)} "
++                f"matched_modules={matched_lora_modules} "
++                f"trainable_parameters={lora_trainable_params:,}"
++            )
++        trainable_patterns = self.cfg.train.trainable_module_patterns
++        if trainable_patterns:
++            trainable_prefixes = tuple(str(pattern) for pattern in trainable_patterns)
++            matched_param_count = 0
++            matched_param_tensors = 0
++            for name, param in model.named_parameters():
++                is_trainable = name.startswith(trainable_prefixes)
++                param.requires_grad = bool(param.requires_grad or is_trainable)
++                if is_trainable:
++                    matched_param_count += int(param.numel())
++                    matched_param_tensors += 1
++            if matched_param_tensors == 0:
++                raise ValueError(
++                    "train.trainable_module_patterns did not match any parameters: "
++                    f"{list(trainable_prefixes)}"
++                )
++            print(
++                "Trainable module filter enabled: "
++                f"patterns={list(trainable_prefixes)} "
++                f"matched_tensors={matched_param_tensors} "
++                f"matched_parameters={matched_param_count:,}"
++            )
+         # model.set_cfg_droprate(
+         #     cfg_droprate=self.cfg.train.cfg_droprate,
+         #     xvec_drop_rate=self.cfg.train.xvec_drop_rate,
+diff --git a/src/dots_tts/config/train.py b/src/dots_tts/config/train.py
+index b975ad7..4d9e6c2 100644
+--- a/src/dots_tts/config/train.py
++++ b/src/dots_tts/config/train.py
+@@ -10,6 +10,12 @@ class TrainConfig(StrictConfigBase):
+     output_dir: str
+     seed: int = 42
+     learning_rate: float
++    trainable_module_patterns: list[str] | None = None
++    lora_module_patterns: list[str] | None = None
++    lora_target_module_names: list[str] | None = None
++    lora_rank: int = Field(default=8, ge=1)
++    lora_alpha: float = 16.0
++    lora_dropout: float = Field(default=0.0, ge=0.0, le=1.0)
+     cfg_droprate: float = 0.0
+     xvec_drop_rate: float = 0.5
+     weight_decay: float = 0.01
+diff --git a/src/dots_tts/models/dots_tts/model.py b/src/dots_tts/models/dots_tts/model.py
+index 62c14cc..e290cbe 100644
+--- a/src/dots_tts/models/dots_tts/model.py
++++ b/src/dots_tts/models/dots_tts/model.py
+@@ -592,10 +592,10 @@ class DotsTtsModel(nn.Module):
+             save_directory / self.LLM_CONFIG_FILENAME,
+         )
+         self.tokenizer.save_pretrained(save_directory)
+-        shutil.copy2(
+-            self.latent_stats_path,
+-            save_directory / self.LATENT_STATS_FILENAME,
+-        )
++        latent_stats_destination = save_directory / self.LATENT_STATS_FILENAME
++        latent_stats_source = self._resolve_latent_stats_source(save_directory)
++        if latent_stats_source.resolve() != latent_stats_destination.resolve():
++            shutil.copy2(latent_stats_source, latent_stats_destination)
+         self._save_artifact_module(self.core, save_directory / self.MODEL_FILENAME)
+         self._save_artifact_module(self.vocoder, save_directory / self.VOCODER_FILENAME)
+         self._save_artifact_module(
+@@ -604,6 +604,35 @@ class DotsTtsModel(nn.Module):
+         )
+         return save_directory
+ 
++    def _resolve_latent_stats_source(self, save_directory: Path) -> Path:
++        source = Path(self.latent_stats_path)
++        candidates = [source]
++        source_text = str(source)
++        if ".tmp" in source_text:
++            candidates.append(Path(source_text.replace(".tmp", "", 1)))
++
++        run_dir = save_directory.parent.parent
++        if run_dir.exists():
++            candidates.extend(
++                sorted(
++                    run_dir.glob(f"checkpoint-*/model/{self.LATENT_STATS_FILENAME}"),
++                    key=lambda path: path.stat().st_mtime,
++                    reverse=True,
++                )
++            )
++
++        for candidate in candidates:
++            if candidate.is_file():
++                self.latent_stats_path = candidate
++                self.core.io_helper = type(self.core.io_helper)(
++                    latent_stats_path=self.latent_stats_path
++                )
++                return candidate
++        raise FileNotFoundError(
++            f"Could not find {self.LATENT_STATS_FILENAME}; checked "
++            f"{[str(candidate) for candidate in candidates]}"
++        )
++
+     def _load_pretrained_artifacts(self, pretrained_path: Path) -> None:
+         self.latent_stats_path = pretrained_path / self.LATENT_STATS_FILENAME
+         self.core.io_helper = type(self.core.io_helper)(
+diff --git a/src/dots_tts/training/checkpoint.py b/src/dots_tts/training/checkpoint.py
+index 2c448e8..b85d5f9 100644
+--- a/src/dots_tts/training/checkpoint.py
++++ b/src/dots_tts/training/checkpoint.py
+@@ -99,7 +99,17 @@ def _replace_latest_symlink(log_dir: str, save_dir: Path) -> None:
+ 
+     if tmp_link_path.exists() or tmp_link_path.is_symlink():
+         tmp_link_path.unlink()
+-    tmp_link_path.symlink_to(save_dir.name)
++    try:
++        tmp_link_path.symlink_to(save_dir.name, target_is_directory=True)
++    except OSError:
++        # Windows often disallows symlink creation without developer mode or
++        # elevated privileges. Checkpoint discovery still falls back to the
++        # numerically latest checkpoint-* directory, so record the intended
++        # target for humans and continue training.
++        if tmp_link_path.exists() or tmp_link_path.is_symlink():
++            tmp_link_path.unlink()
++        (log_path / "latest.txt").write_text(save_dir.name, encoding="utf-8")
++        return
+ 
+     if link_path.exists() or link_path.is_symlink():
+         if link_path.is_dir() and not link_path.is_symlink():

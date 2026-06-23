@@ -1,0 +1,200 @@
+{
+  "experiment_dir": "<DOTS_TTS_ROOT>\\experiments\\short_text_comparison_60_each",
+  "case_count": 180,
+  "created_at": "2026-06-23T16:24:57",
+  "models": {
+    "dots.tts-mf": {
+      "overall": {
+        "count": 180,
+        "wer": 0.05941165583228812,
+        "cer": 0.04231430865421786,
+        "sim": 0.7423277487357457,
+        "rtf": 0.875031809060995,
+        "zero_wer_count": 132,
+        "nonzero_wer_count": 48,
+        "mean_generation_seconds": 3.898197697268592,
+        "mean_audio_seconds": 4.434666666666666
+      },
+      "by_category": {
+        "short_zh": {
+          "count": 60,
+          "wer": 0.011078919360653108,
+          "cer": 0.011078919360653108,
+          "sim": 0.8545747021834056,
+          "rtf": 0.7780502349180496,
+          "zero_wer_count": 53,
+          "nonzero_wer_count": 7,
+          "mean_generation_seconds": 3.6827621420224506,
+          "mean_audio_seconds": 4.754666666666666
+        },
+        "short_en": {
+          "count": 60,
+          "wer": 0.14571428571428574,
+          "cer": 0.09442224418007496,
+          "sim": 0.5606664677460989,
+          "rtf": 0.8345477894908192,
+          "zero_wer_count": 41,
+          "nonzero_wer_count": 19,
+          "mean_generation_seconds": 2.435872423648834,
+          "mean_audio_seconds": 3.0186666666666673
+        },
+        "short_anime": {
+          "count": 60,
+          "wer": 0.02144176242192556,
+          "cer": 0.02144176242192556,
+          "sim": 0.8117420762777329,
+          "rtf": 1.0124974027741158,
+          "zero_wer_count": 38,
+          "nonzero_wer_count": 22,
+          "mean_generation_seconds": 5.575958526134491,
+          "mean_audio_seconds": 5.530666666666666
+        }
+      }
+    },
+    "CosyVoice3": {
+      "overall": {
+        "count": 180,
+        "wer": 0.021444027633238365,
+        "cer": 0.01744685558434218,
+        "sim": 0.6961377046174473,
+        "rtf": 0.8776829986089958,
+        "zero_wer_count": 143,
+        "nonzero_wer_count": 37,
+        "mean_generation_seconds": 3.227643638889155,
+        "mean_audio_seconds": 4.5040000000000004
+      },
+      "by_category": {
+        "short_zh": {
+          "count": 60,
+          "wer": 0.014734211436997813,
+          "cer": 0.014734211436997813,
+          "sim": 0.8541121453046798,
+          "rtf": 0.7092401967406645,
+          "zero_wer_count": 51,
+          "nonzero_wer_count": 9,
+          "mean_generation_seconds": 3.790670861667483,
+          "mean_audio_seconds": 5.537999999999998
+        },
+        "short_en": {
+          "count": 60,
+          "wer": 0.02388888888888889,
+          "cer": 0.011897372742200329,
+          "sim": 0.43643238494793574,
+          "rtf": 1.3850730040179982,
+          "zero_wer_count": 54,
+          "nonzero_wer_count": 6,
+          "mean_generation_seconds": 2.683712105000086,
+          "mean_audio_seconds": 1.989333333333334
+        },
+        "short_anime": {
+          "count": 60,
+          "wer": 0.025708982573828372,
+          "cer": 0.025708982573828372,
+          "sim": 0.7978685835997263,
+          "rtf": 0.5387357950683241,
+          "zero_wer_count": 38,
+          "nonzero_wer_count": 22,
+          "mean_generation_seconds": 3.208547949999896,
+          "mean_audio_seconds": 5.984666666666669
+        }
+      }
+    }
+  },
+  "paired_win_counts": {
+    "WER": {
+      "dots.tts-mf": 14,
+      "CosyVoice3": 26,
+      "tie": 140,
+      "by_category": {
+        "short_zh": {
+          "dots.tts-mf": 2,
+          "CosyVoice3": 2,
+          "tie": 56
+        },
+        "short_en": {
+          "dots.tts-mf": 5,
+          "CosyVoice3": 18,
+          "tie": 37
+        },
+        "short_anime": {
+          "dots.tts-mf": 7,
+          "CosyVoice3": 6,
+          "tie": 47
+        }
+      }
+    },
+    "CER": {
+      "dots.tts-mf": 14,
+      "CosyVoice3": 25,
+      "tie": 141,
+      "by_category": {
+        "short_zh": {
+          "dots.tts-mf": 2,
+          "CosyVoice3": 2,
+          "tie": 56
+        },
+        "short_en": {
+          "dots.tts-mf": 5,
+          "CosyVoice3": 17,
+          "tie": 38
+        },
+        "short_anime": {
+          "dots.tts-mf": 7,
+          "CosyVoice3": 6,
+          "tie": 47
+        }
+      }
+    },
+    "SIM": {
+      "dots.tts-mf": 120,
+      "CosyVoice3": 60,
+      "tie": 0,
+      "by_category": {
+        "short_zh": {
+          "dots.tts-mf": 29,
+          "CosyVoice3": 31,
+          "tie": 0
+        },
+        "short_en": {
+          "dots.tts-mf": 55,
+          "CosyVoice3": 5,
+          "tie": 0
+        },
+        "short_anime": {
+          "dots.tts-mf": 36,
+          "CosyVoice3": 24,
+          "tie": 0
+        }
+      }
+    },
+    "RTF": {
+      "dots.tts-mf": 68,
+      "CosyVoice3": 112,
+      "tie": 0,
+      "by_category": {
+        "short_zh": {
+          "dots.tts-mf": 14,
+          "CosyVoice3": 46,
+          "tie": 0
+        },
+        "short_en": {
+          "dots.tts-mf": 54,
+          "CosyVoice3": 6,
+          "tie": 0
+        },
+        "short_anime": {
+          "dots.tts-mf": 0,
+          "CosyVoice3": 60,
+          "tie": 0
+        }
+      }
+    }
+  },
+  "files": {
+    "report": "<DOTS_TTS_ROOT>\\experiments\\short_text_comparison_60_each\\official_style_model_comparison_180.md",
+    "summary_json": "<DOTS_TTS_ROOT>\\experiments\\short_text_comparison_60_each\\official_style_model_comparison_180_summary.json",
+    "per_case_csv": "<DOTS_TTS_ROOT>\\experiments\\short_text_comparison_60_each\\official_style_model_comparison_180_per_case.csv",
+    "dots_metrics": "<DOTS_TTS_ROOT>\\experiments\\short_text_comparison_60_each\\outputs\\dots_tts_mf\\official_style_metrics.json",
+    "cosy_metrics": "<DOTS_TTS_ROOT>\\experiments\\short_text_comparison_60_each\\outputs\\cosyvoice3\\official_style_metrics.json"
+  }
+}

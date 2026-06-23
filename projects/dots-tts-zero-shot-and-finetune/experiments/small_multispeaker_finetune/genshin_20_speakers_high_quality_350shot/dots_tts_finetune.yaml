@@ -1,0 +1,89 @@
+train_data:
+  train_audio_sample_rate: 48000
+  audio_samples_per_llm_token: 7680
+  sources:
+    - name: genshin_350shot_basic
+      weight: 1.0
+      pipeline: basic
+      adapter:
+        class_name: JsonlManifestSourceAdapter
+        params:
+          manifest_path: <DOTS_TTS_ROOT>/experiments/small_multispeaker_finetune/genshin_20_speakers_high_quality_350shot/train.jsonl
+          shuffle: true
+    - name: genshin_350shot_interleave
+      weight: 1.0
+      pipeline: interleave
+      adapter:
+        class_name: JsonlManifestSourceAdapter
+        params:
+          manifest_path: <DOTS_TTS_ROOT>/experiments/small_multispeaker_finetune/genshin_20_speakers_high_quality_350shot/train.jsonl
+          shuffle: true
+  num_tokens_per_epoch: 800000
+  num_workers: 0
+  pin_memory: true
+  max_audio_seconds_in_batch: 8.0
+  max_text_tokens_in_batch: 768
+  max_samples_per_batch: null
+  bucketing_pool_size: 96
+val_data:
+  train_audio_sample_rate: 48000
+  audio_samples_per_llm_token: 7680
+  sources:
+    - name: genshin_350shot_valid_basic
+      weight: 1.0
+      pipeline: basic
+      adapter:
+        class_name: JsonlManifestSourceAdapter
+        params:
+          manifest_path: <DOTS_TTS_ROOT>/experiments/small_multispeaker_finetune/genshin_20_speakers_high_quality_350shot/val.jsonl
+          shuffle: false
+    - name: genshin_350shot_valid_interleave
+      weight: 1.0
+      pipeline: interleave
+      adapter:
+        class_name: JsonlManifestSourceAdapter
+        params:
+          manifest_path: <DOTS_TTS_ROOT>/experiments/small_multispeaker_finetune/genshin_20_speakers_high_quality_350shot/val.jsonl
+          shuffle: false
+  num_workers: 0
+  pin_memory: true
+  max_audio_seconds_in_batch: 8.0
+  max_text_tokens_in_batch: 768
+  max_samples_per_batch: null
+  bucketing_pool_size: 96
+train:
+  pretrained_model_path: <HF_CACHE_DIR>/models--rednote-hilab--dots.tts-soar/snapshots/e3520f75254d0020a0406db31c51a79d00d22d55
+  output_dir: <DOTS_TTS_ROOT>/experiments/small_multispeaker_finetune/genshin_20_speakers_high_quality_350shot/runs/dots_tts_soar_genshin_20spk_350shot_lora_1000step
+  seed: 2026
+  learning_rate: 3e-06
+  lora_module_patterns:
+    - core.llm
+    - core.velocity_field_predictor
+  lora_target_module_names:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+    - fc1
+    - fc2
+  lora_rank: 8
+  lora_alpha: 16.0
+  lora_dropout: 0.05
+  weight_decay: 0.01
+  warmup_steps: 50
+  max_train_steps: 1000
+  gradient_accumulation_steps: 2
+  grad_clip_norm: 1.0
+  save_interval: 250
+  max_checkpoints_to_keep: 3
+  log_interval: 10
+  eval_interval: 250
+  max_eval_batches: 3
+  run_eval_on_start: false
+loss:
+  ce_weight: 1.0
+  fm_weight: 1.0
+  eos_weight: 1.0

@@ -1,0 +1,41 @@
+# Large model/data artifacts
+pretrained_models/
+checkpoints/
+checkpoint-*/
+runs/
+exp/
+outputs/
+data/
+datasets/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.tar
+*.parquet
+*.wav
+*.flac
+*.mp3
+*.m4a
+
+# Python / tooling
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.cache/
+.pytest_cache/
+
+# Logs and local build outputs
+*.log
+*.pid
+*.aux
+*.out
+*.synctex.gz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

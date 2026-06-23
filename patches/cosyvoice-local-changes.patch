@@ -1,0 +1,385 @@
+﻿diff --git a/cosyvoice/bin/train.py b/cosyvoice/bin/train.py
+index d650161..ad5ff6083 100644
+--- a/cosyvoice/bin/train.py
++++ b/cosyvoice/bin/train.py
+@@ -21,7 +21,10 @@ from copy import deepcopy
+ import os
+ import torch
+ import torch.distributed as dist
+-import deepspeed
++try:
++    import deepspeed
++except ImportError:
++    deepspeed = None
+ 
+ from hyperpyyaml import load_hyperpyyaml
+ 
+@@ -89,7 +92,8 @@ def get_args():
+                         default=60,
+                         type=int,
+                         help='timeout (in seconds) of cosyvoice_join.')
+-    parser = deepspeed.add_config_arguments(parser)
++    if deepspeed is not None:
++        parser = deepspeed.add_config_arguments(parser)
+     args = parser.parse_args()
+     return args
+ 
+@@ -97,6 +101,8 @@ def get_args():
+ @record
+ def main():
+     args = get_args()
++    if args.train_engine == 'deepspeed' and deepspeed is None:
++        raise ImportError('deepspeed is required when --train_engine deepspeed is selected')
+     os.environ['onnx_path'] = args.onnx_path
+     logging.basicConfig(level=logging.DEBUG,
+                         format='%(asctime)s %(levelname)s %(message)s')
+diff --git a/cosyvoice/llm/llm.py b/cosyvoice/llm/llm.py
+index e8e81d9..3e5c42d 100644
+--- a/cosyvoice/llm/llm.py
++++ b/cosyvoice/llm/llm.py
+@@ -224,9 +224,14 @@ class TransformerLM(torch.nn.Module):
+ 
+ 
+ class Qwen2Encoder(torch.nn.Module):
+-    def __init__(self, pretrain_path):
++    def __init__(self, pretrain_path, gradient_checkpointing=False):
+         super().__init__()
+         self.model = Qwen2ForCausalLM.from_pretrained(pretrain_path)
++        if gradient_checkpointing:
++            self.model.gradient_checkpointing_enable(
++                gradient_checkpointing_kwargs={"use_reentrant": False}
++            )
++            self.model.config.use_cache = False
+ 
+     def forward(self, xs: torch.Tensor, xs_lens: torch.Tensor):
+         T = xs.size(1)
+@@ -703,4 +708,4 @@ class CosyVoice3LM(Qwen2LM):
+         self.stop_token_ids = [speech_token_size + i for i in range(200)]
+         self.vllm_output_queue = {}
+         if online_feature is True:
+-            self.speech_token_extractor = SpeechTokenExtractor(model_path=os.path.join(onnx_path, 'speech_tokenizer_v3.batch.onnx'))
+\ No newline at end of file
++            self.speech_token_extractor = SpeechTokenExtractor(model_path=os.path.join(onnx_path, 'speech_tokenizer_v3.batch.onnx'))
+diff --git a/cosyvoice/utils/executor.py b/cosyvoice/utils/executor.py
+index f08fa09..9a74aee 100644
+--- a/cosyvoice/utils/executor.py
++++ b/cosyvoice/utils/executor.py
+@@ -143,7 +143,10 @@ class Executor:
+         dist.barrier()
+         self.cv(model, cv_data_loader, writer, info_dict, on_batch_end=True)
+ 
+-    @torch.inference_mode()
++    # Windows Gloo DDP synchronizes module buffers before validation forward.
++    # no_grad keeps validation gradient-free without inference tensors that
++    # reject that in-place synchronization.
++    @torch.no_grad()
+     def cv(self, model, cv_data_loader, writer, info_dict, on_batch_end=True):
+         ''' Cross validation on
+         '''
+diff --git a/cosyvoice/utils/train_utils.py b/cosyvoice/utils/train_utils.py
+index 2ab5ebe..e55c8bd 100644
+--- a/cosyvoice/utils/train_utils.py
++++ b/cosyvoice/utils/train_utils.py
+@@ -22,7 +22,10 @@ import re
+ import datetime
+ import yaml
+ 
+-import deepspeed
++try:
++    import deepspeed
++except ImportError:
++    deepspeed = None
+ import torch.optim as optim
+ import torch.distributed as dist
+ 
+@@ -30,7 +33,8 @@ from torch.utils.tensorboard import SummaryWriter
+ from torch.utils.data import DataLoader
+ from torch.nn.utils import clip_grad_norm_
+ 
+-from deepspeed.runtime.zero.stage_1_and_2 import estimate_zero2_model_states_mem_needs_all_live
++if deepspeed is not None:
++    from deepspeed.runtime.zero.stage_1_and_2 import estimate_zero2_model_states_mem_needs_all_live
+ 
+ from cosyvoice.dataset.dataset import Dataset
+ from cosyvoice.utils.scheduler import WarmupLR, NoamHoldAnnealing, ConstantLR
+@@ -46,6 +50,8 @@ def init_distributed(args):
+         torch.cuda.set_device(local_rank)
+         dist.init_process_group(args.dist_backend)
+     else:
++        if deepspeed is None:
++            raise ImportError('deepspeed is required when --train_engine deepspeed is selected')
+         deepspeed.init_distributed(dist_backend=args.dist_backend)
+     return world_size, local_rank, rank
+ 
+@@ -56,16 +62,15 @@ def init_dataset_and_dataloader(args, configs, gan, dpo):
+     cv_dataset = Dataset(args.cv_data, data_pipeline=data_pipeline, mode='dev', gan=gan, dpo=dpo, shuffle=False, partition=False)
+ 
+     # do not use persistent_workers=True, as whisper tokenizer opens tiktoken file each time when the for loop starts
+-    train_data_loader = DataLoader(train_dataset,
+-                                   batch_size=None,
+-                                   pin_memory=args.pin_memory,
+-                                   num_workers=args.num_workers,
+-                                   prefetch_factor=args.prefetch)
+-    cv_data_loader = DataLoader(cv_dataset,
+-                                batch_size=None,
+-                                pin_memory=args.pin_memory,
+-                                num_workers=args.num_workers,
+-                                prefetch_factor=args.prefetch)
++    loader_kwargs = {
++        'batch_size': None,
++        'pin_memory': args.pin_memory,
++        'num_workers': args.num_workers,
++    }
++    if args.num_workers > 0:
++        loader_kwargs['prefetch_factor'] = args.prefetch
++    train_data_loader = DataLoader(train_dataset, **loader_kwargs)
++    cv_data_loader = DataLoader(cv_dataset, **loader_kwargs)
+     return train_dataset, cv_dataset, train_data_loader, cv_data_loader
+ 
+ 
+@@ -97,8 +102,16 @@ def wrap_cuda_model(args, model):
+     if args.train_engine == "torch_ddp":  # native pytorch ddp
+         assert (torch.cuda.is_available())
+         model.cuda()
+-        model = torch.nn.parallel.DistributedDataParallel(model, find_unused_parameters=True)
++        find_unused_parameters = os.environ.get('COSYVOICE_DDP_FIND_UNUSED_PARAMETERS', 'true').lower() == 'true'
++        gradient_as_bucket_view = os.environ.get('COSYVOICE_DDP_GRADIENT_AS_BUCKET_VIEW', 'false').lower() == 'true'
++        model = torch.nn.parallel.DistributedDataParallel(
++            model,
++            find_unused_parameters=find_unused_parameters,
++            gradient_as_bucket_view=gradient_as_bucket_view,
++        )
+     else:
++        if deepspeed is None:
++            raise ImportError('deepspeed is required when --train_engine deepspeed is selected')
+         if int(os.environ.get('RANK', 0)) == 0:
+             logging.info("Estimating model states memory needs (zero2)...")
+             estimate_zero2_model_states_mem_needs_all_live(
+@@ -131,6 +144,8 @@ def init_optimizer_and_scheduler(args, configs, model, gan):
+ 
+         # use deepspeed optimizer for speedup
+         if args.train_engine == "deepspeed":
++            if deepspeed is None:
++                raise ImportError('deepspeed is required when --train_engine deepspeed is selected')
+             def scheduler(opt):
+                 return scheduler_type(opt, **configs['train_conf']['scheduler_conf'])
+             model, optimizer, _, scheduler = deepspeed.initialize(
+diff --git a/tools/make_parquet_list.py b/tools/make_parquet_list.py
+index 485d2ab..12c82c5 100755
+--- a/tools/make_parquet_list.py
++++ b/tools/make_parquet_list.py
+@@ -48,10 +48,10 @@ def job(utt_list, parquet_file, utt2parquet_file, spk2parquet_file):
+     if args.dpo:
+         df['reject_speech_token'] = [utt2reject_speech_token.get(utt, None) for utt in utt_list]
+     df.to_parquet(parquet_file)
+-    with open(utt2parquet_file, 'w') as f:
++    with open(utt2parquet_file, 'w', encoding='utf-8') as f:
+         json.dump({k: parquet_file for k in utt_list}, f, ensure_ascii=False, indent=2)
+-    with open(spk2parquet_file, 'w') as f:
+-        json.dump({k: parquet_file for k in list(set(spk_list))}, f, ensure_ascii=False, indent=2)
++    with open(spk2parquet_file, 'w', encoding='utf-8') as f:
++        json.dump({utt2spk[utt]: parquet_file for utt in utt_list}, f, ensure_ascii=False, indent=2)
+     logging.info('spend time {}'.format(time.time() - start_time))
+ 
+ 
+@@ -76,21 +76,21 @@ if __name__ == "__main__":
+     args = parser.parse_args()
+ 
+     utt2wav, utt2text, utt2spk = {}, {}, {}
+-    with open('{}/wav.scp'.format(args.src_dir)) as f:
++    with open('{}/wav.scp'.format(args.src_dir), encoding='utf-8') as f:
+         for l in f:
+             l = l.replace('\n', '').split()
+             utt2wav[l[0]] = l[1]
+-    with open('{}/text'.format(args.src_dir)) as f:
++    with open('{}/text'.format(args.src_dir), encoding='utf-8') as f:
+         for l in f:
+             l = l.replace('\n', '').split()
+             utt2text[l[0]] = ' '.join(l[1:])
+-    with open('{}/utt2spk'.format(args.src_dir)) as f:
++    with open('{}/utt2spk'.format(args.src_dir), encoding='utf-8') as f:
+         for l in f:
+             l = l.replace('\n', '').split()
+             utt2spk[l[0]] = l[1]
+     if os.path.exists('{}/instruct'.format(args.src_dir)):
+         utt2instruct = {}
+-        with open('{}/instruct'.format(args.src_dir)) as f:
++        with open('{}/instruct'.format(args.src_dir), encoding='utf-8') as f:
+             for l in f:
+                 l = l.replace('\n', '').split()
+                 utt2instruct[l[0]] = ' '.join(l[1:])
+@@ -103,9 +103,8 @@ if __name__ == "__main__":
+         utt2reject_speech_token = torch.load('{}_reject/utt2speech_token.pt'.format(args.src_dir)) if os.path.exists('{}_reject/utt2speech_token.pt'.format(args.src_dir)) else {}
+     utts = list(utt2wav.keys())
+ 
+-    # Using process pool to speedup
+-    pool = multiprocessing.Pool(processes=args.num_processes)
+     parquet_list, utt2parquet_list, spk2parquet_list = [], [], []
++    pool = multiprocessing.Pool(processes=args.num_processes) if args.num_processes > 1 else None
+     for i, j in enumerate(range(0, len(utts), args.num_utts_per_parquet)):
+         parquet_file = os.path.join(args.des_dir, 'parquet_{:09d}.tar'.format(i))
+         utt2parquet_file = os.path.join(args.des_dir, 'utt2parquet_{:09d}.json'.format(i))
+@@ -113,9 +112,14 @@ if __name__ == "__main__":
+         parquet_list.append(parquet_file)
+         utt2parquet_list.append(utt2parquet_file)
+         spk2parquet_list.append(spk2parquet_file)
+-        pool.apply_async(job, (utts[j: j + args.num_utts_per_parquet], parquet_file, utt2parquet_file, spk2parquet_file))
+-    pool.close()
+-    pool.join()
++        job_args = (utts[j: j + args.num_utts_per_parquet], parquet_file, utt2parquet_file, spk2parquet_file)
++        if pool is None:
++            job(*job_args)
++        else:
++            pool.apply_async(job, job_args)
++    if pool is not None:
++        pool.close()
++        pool.join()
+ 
+     with open('{}/data.list'.format(args.des_dir), 'w', encoding='utf8') as f1, \
+             open('{}/utt2data.list'.format(args.des_dir), 'w', encoding='utf8') as f2, \
+diff --git a/webui.py b/webui.py
+index 24b7951..ceed693 100644
+--- a/webui.py
++++ b/webui.py
+@@ -14,6 +14,8 @@
+ import os
+ import sys
+ import argparse
++import hashlib
++import subprocess
+ import gradio as gr
+ import numpy as np
+ import torch
+@@ -47,6 +49,36 @@ def change_instruction(mode_checkbox_group):
+     return instruct_dict[mode_checkbox_group]
+ 
+ 
++def prepare_prompt_audio(prompt_wav):
++    try:
++        return prompt_wav, torchaudio.info(prompt_wav)
++    except Exception:
++        import imageio_ffmpeg
++
++        os.makedirs(os.path.join(ROOT_DIR, 'outputs', 'prompt_cache'), exist_ok=True)
++        stat = os.stat(prompt_wav)
++        cache_key = '{}:{}:{}'.format(prompt_wav, stat.st_mtime_ns, stat.st_size)
++        filename = hashlib.sha1(cache_key.encode('utf-8')).hexdigest() + '.wav'
++        wav_path = os.path.join(ROOT_DIR, 'outputs', 'prompt_cache', filename)
++        if not os.path.exists(wav_path):
++            command = [
++                imageio_ffmpeg.get_ffmpeg_exe(),
++                '-y',
++                '-i',
++                prompt_wav,
++                '-ac',
++                '1',
++                '-ar',
++                str(prompt_sr),
++                wav_path,
++            ]
++            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
++                                    text=True, encoding='utf-8', errors='ignore')
++            if result.returncode != 0:
++                raise RuntimeError(result.stderr[-1000:])
++        return wav_path, torchaudio.info(wav_path)
++
++
+ def generate_audio(tts_text, mode_checkbox_group, sft_dropdown, prompt_text, prompt_wav_upload, prompt_wav_record, instruct_text,
+                    seed, stream, speed):
+     if prompt_wav_upload is not None:
+@@ -60,6 +92,7 @@ def generate_audio(tts_text, mode_checkbox_group, sft_dropdown, prompt_text, pro
+         if instruct_text == '':
+             gr.Warning('您正在使用自然语言控制模式, 请输入instruct文本')
+             yield (cosyvoice.sample_rate, default_data)
++            return
+         if prompt_wav is not None or prompt_text != '':
+             gr.Info('您正在使用自然语言控制模式, prompt音频/prompt文本会被忽略')
+     # if cross_lingual mode, please make sure that model is iic/CosyVoice-300M and tts_text prompt_text are different language
+@@ -69,15 +102,24 @@ def generate_audio(tts_text, mode_checkbox_group, sft_dropdown, prompt_text, pro
+         if prompt_wav is None:
+             gr.Warning('您正在使用跨语种复刻模式, 请提供prompt音频')
+             yield (cosyvoice.sample_rate, default_data)
++            return
+         gr.Info('您正在使用跨语种复刻模式, 请确保合成文本和prompt文本为不同语言')
+     # if in zero_shot cross_lingual, please make sure that prompt_text and prompt_wav meets requirements
+     if mode_checkbox_group in ['3s极速复刻', '跨语种复刻']:
+         if prompt_wav is None:
+             gr.Warning('prompt音频为空，您是否忘记输入prompt音频？')
+             yield (cosyvoice.sample_rate, default_data)
+-        if torchaudio.info(prompt_wav).sample_rate < prompt_sr:
+-            gr.Warning('prompt音频采样率{}低于{}'.format(torchaudio.info(prompt_wav).sample_rate, prompt_sr))
++            return
++        try:
++            prompt_wav, prompt_wav_info = prepare_prompt_audio(prompt_wav)
++        except Exception as e:
++            gr.Warning('prompt音频无法读取或转换，请上传wav/mp3/m4a格式音频。错误: {}'.format(e))
++            yield (cosyvoice.sample_rate, default_data)
++            return
++        if prompt_wav_info.sample_rate < prompt_sr:
++            gr.Warning('prompt音频采样率{}低于{}'.format(prompt_wav_info.sample_rate, prompt_sr))
+             yield (cosyvoice.sample_rate, default_data)
++            return
+     # sft mode only use sft_dropdown
+     if mode_checkbox_group in ['预训练音色']:
+         if instruct_text != '' or prompt_wav is not None or prompt_text != '':
+@@ -85,11 +127,13 @@ def generate_audio(tts_text, mode_checkbox_group, sft_dropdown, prompt_text, pro
+         if sft_dropdown == '':
+             gr.Warning('没有可用的预训练音色！')
+             yield (cosyvoice.sample_rate, default_data)
++            return
+     # zero_shot mode only use prompt_wav prompt text
+     if mode_checkbox_group in ['3s极速复刻']:
+         if prompt_text == '':
+             gr.Warning('prompt文本为空，您是否忘记输入prompt文本？')
+             yield (cosyvoice.sample_rate, default_data)
++            return
+         if instruct_text != '':
+             gr.Info('您正在使用3s极速复刻模式，预训练音色/instruct文本会被忽略！')
+ 
+@@ -123,10 +167,11 @@ def main():
+                     [CosyVoice-300M-SFT](https://www.modelscope.cn/models/iic/CosyVoice-300M-SFT)")
+         gr.Markdown("#### 请输入需要合成的文本，选择推理模式，并按照提示步骤进行操作")
+ 
++        default_inference_mode = '3s极速复刻' if sft_spk == [''] else inference_mode_list[0]
+         tts_text = gr.Textbox(label="输入合成文本", lines=1, value="我是通义实验室语音团队全新推出的生成式语音大模型，提供舒适自然的语音合成能力。")
+         with gr.Row():
+-            mode_checkbox_group = gr.Radio(choices=inference_mode_list, label='选择推理模式', value=inference_mode_list[0])
+-            instruction_text = gr.Text(label="操作步骤", value=instruct_dict[inference_mode_list[0]], scale=0.5)
++            mode_checkbox_group = gr.Radio(choices=inference_mode_list, label='选择推理模式', value=default_inference_mode)
++            instruction_text = gr.Text(label="操作步骤", value=instruct_dict[default_inference_mode], scale=0.5)
+             sft_dropdown = gr.Dropdown(choices=sft_spk, label='选择预训练音色', value=sft_spk[0], scale=0.25)
+             stream = gr.Radio(choices=stream_mode_list, label='是否流式推理', value=stream_mode_list[0][1])
+             speed = gr.Number(value=1, label="速度调节(仅支持非流式推理)", minimum=0.5, maximum=2.0, step=0.1)
+@@ -142,7 +187,7 @@ def main():
+ 
+         generate_button = gr.Button("生成音频")
+ 
+-        audio_output = gr.Audio(label="合成音频", autoplay=True, streaming=True)
++        audio_output = gr.Audio(label="合成音频", autoplay=True, streaming=False)
+ 
+         seed_button.click(generate_seed, inputs=[], outputs=seed)
+         generate_button.click(generate_audio,
+@@ -154,6 +199,15 @@ def main():
+     demo.launch(server_name='0.0.0.0', server_port=args.port)
+ 
+ 
++def resolve_model_dir(model_dir):
++    if os.path.exists(model_dir):
++        return model_dir
++    local_model_dir = os.path.join(ROOT_DIR, model_dir)
++    if os.path.exists(local_model_dir):
++        return local_model_dir
++    return model_dir
++
++
+ if __name__ == '__main__':
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--port',
+@@ -164,6 +218,7 @@ if __name__ == '__main__':
+                         default='pretrained_models/CosyVoice2-0.5B',
+                         help='local path or modelscope repo id')
+     args = parser.parse_args()
++    args.model_dir = resolve_model_dir(args.model_dir)
+     cosyvoice = AutoModel(model_dir=args.model_dir)
+ 
+     sft_spk = cosyvoice.list_available_spks()
