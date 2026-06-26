@@ -78,6 +78,13 @@
         font-size: 14px;
       }
 
+      .subheading {
+        margin: 20px 0 10px;
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 700;
+      }
+
       .metrics {
         display: flex;
         flex-wrap: wrap;
@@ -138,7 +145,7 @@
     <main>
       <header>
         <h1>TTS 项目试听</h1>
-        <p class="lede">CosyVoice3、dots.tts 与 OmniVoice 的可复核生成样例。播放不会下载原始数据或参考音频。</p>
+        <p class="lede">CosyVoice3、dots.tts 与 OmniVoice 的可复核参考音频和生成样例。</p>
         <a class="repo-link" href="https://github.com/Zhq-0/TTS">查看项目代码与完整实验报告</a>
       </header>
 
@@ -146,6 +153,25 @@
         <h2>CosyVoice3 原神角色 LLM-only 微调</h2>
         <p class="summary">Ganyu、Paimon 与 Zhongli 的 common-line 对照。每组使用相同参考音频、目标文本和随机种子；下方为选定检查点的试听，指标为四角色汇总。</p>
         <div class="metrics"><span>base：CER/WER 11.76% / 27.27%，SIM 0.8731，RTF 0.593</span><span>clean_epoch_0：CER/WER 14.71% / 27.27%，SIM 0.8860，RTF 0.591</span><span>clean_epoch_1：CER/WER 14.71% / 29.55%，SIM 0.8713，RTF 0.583</span></div>
+        <h3 class="subheading">参考音频</h3>
+        <div class="audio-grid">
+          <article class="sample">
+            <h3>Reference - Ganyu</h3>
+            <p>与 Ganyu base 和 clean_epoch_0 对应的 prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-cosyvoice3-ganyu.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Paimon</h3>
+            <p>与 Paimon base 和 clean_epoch_1 对应的 prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-cosyvoice3-paimon.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Zhongli</h3>
+            <p>与 Zhongli base 和 clean_epoch_1 对应的 prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-cosyvoice3-zhongli.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+        </div>
+        <h3 class="subheading">生成结果</h3>
         <div class="audio-grid">
           <article class="sample">
             <h3>Base - Ganyu</h3>
@@ -184,6 +210,15 @@
         <h2>dots.tts-mf 中文 zero-shot</h2>
         <p class="summary">AISHELL-3 普通话参考音频，目标文本为“请保持语速平稳，声音自然清晰。”</p>
         <div class="metrics"><span>中文短文本 60 条：WER/CER 1.11%</span><span>SIM 0.855</span><span>RTF 0.778</span></div>
+        <h3 class="subheading">参考音频</h3>
+        <div class="audio-grid">
+          <article class="sample">
+            <h3>Reference - AISHELL-3</h3>
+            <p>与 dots.tts-mf 样例对应的普通话 prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-dots-tts-aishell3-ssb00050100.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+        </div>
+        <h3 class="subheading">生成结果</h3>
         <div class="audio-grid">
           <article class="sample">
             <h3>dots.tts-mf</h3>
@@ -197,6 +232,15 @@
         <h2>OmniVoice 20 说话人微调</h2>
         <p class="summary">Yelan 验证音频未参与训练，作为 zero-shot prompt；base 与 finetuned_best 采用固定中文短文本。下方为单条试听，指标采用完整 20 说话人评测集汇总。</p>
         <div class="metrics"><span>CER：0.83% -&gt; 0.67%</span><span>WER：1.39% -&gt; 1.11%</span><span>SIM-o：0.7544 -&gt; 0.7632</span><span>总体 RTF：0.1132 -&gt; 0.1104</span></div>
+        <h3 class="subheading">参考音频</h3>
+        <div class="audio-grid">
+          <article class="sample">
+            <h3>Reference - Yelan</h3>
+            <p>未参与训练的验证音频，用作 base 与微调后模型的 zero-shot prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-yelan.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+        </div>
+        <h3 class="subheading">生成结果</h3>
         <div class="audio-grid">
           <article class="sample">
             <h3>Base</h3>
@@ -211,7 +255,7 @@
         </div>
       </section>
 
-      <footer>样例均为合成结果，仅用于非商业研究与评测展示；仓库不包含训练数据、原始音频或参考音频。</footer>
+      <footer>样例仅用于非商业研究与评测展示；仓库仅包含 5 条与展示结果对应的参考音频和 9 条生成音频，不包含训练数据或批量原始音频。</footer>
     </main>
   </body>
 </html>
