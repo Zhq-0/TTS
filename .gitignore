@@ -19,6 +19,11 @@ datasets/
 *.mp3
 *.m4a
 
+# Curated README listening samples; all other audio remains ignored.
+!assets/
+!assets/audio/
+!assets/audio/*.wav
+
 # Python / tooling
 __pycache__/
 *.pyc
