@@ -230,7 +230,7 @@
 
       <section id="omnivoice">
         <h2>OmniVoice 20 说话人微调</h2>
-        <p class="summary">Yelan 验证音频未参与训练，作为 zero-shot prompt；base 与 finetuned_best 采用固定中文短文本。下方为单条试听，指标采用完整 20 说话人评测集汇总。</p>
+        <p class="summary">Yelan 与 Nahida 的验证音频均未参与训练，作为 zero-shot prompt；base 与 finetuned_best 采用固定中文短文本。下方为单条试听，指标采用完整 20 说话人评测集汇总。</p>
         <div class="metrics"><span>CER：0.83% -&gt; 0.67%</span><span>WER：1.39% -&gt; 1.11%</span><span>SIM-o：0.7544 -&gt; 0.7632</span><span>总体 RTF：0.1132 -&gt; 0.1104</span></div>
         <h3 class="subheading">参考音频</h3>
         <div class="audio-grid">
@@ -238,6 +238,11 @@
             <h3>Reference - Yelan</h3>
             <p>未参与训练的验证音频，用作 base 与微调后模型的 zero-shot prompt。</p>
             <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-yelan.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Nahida</h3>
+            <p>未参与训练的验证音频，用作 base 与微调后模型的 zero-shot prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-nahida.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
         </div>
         <h3 class="subheading">生成结果</h3>
@@ -252,10 +257,20 @@
             <p>Yelan，finetuned_best。</p>
             <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-yelan.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
+          <article class="sample">
+            <h3>Base - Nahida</h3>
+            <p>单样例：SIM-o 0.8010，UTMOS 2.0114。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-base-nahida.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>微调后 - Nahida</h3>
+            <p>单样例：SIM-o 0.8750，UTMOS 2.0674。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-nahida.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
         </div>
       </section>
 
-      <footer>样例仅用于非商业研究与评测展示；仓库仅包含 5 条与展示结果对应的参考音频和 9 条生成音频，不包含训练数据或批量原始音频。</footer>
+      <footer>样例仅用于非商业研究与评测展示；仓库仅包含 6 条与展示结果对应的参考音频和 11 条生成音频，不包含训练数据或批量原始音频。</footer>
     </main>
   </body>
 </html>
