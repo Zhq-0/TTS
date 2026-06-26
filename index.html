@@ -207,23 +207,63 @@
       </section>
 
       <section id="dots-tts">
-        <h2>dots.tts-mf 中文 zero-shot</h2>
-        <p class="summary">AISHELL-3 普通话参考音频，目标文本为“请保持语速平稳，声音自然清晰。”</p>
-        <div class="metrics"><span>中文短文本 60 条：WER/CER 1.11%</span><span>SIM 0.855</span><span>RTF 0.778</span></div>
+        <h2>dots.tts zero-shot 与鲁棒性样例</h2>
+        <p class="summary">展示 dots.tts-mf 在中文、英文、角色、长文本和带噪参考音频下的生成结果，并加入一条 dots.tts-soar 高质量音色克隆样例。下方为试听样例，指标采用 180 条短文本官方风格评测汇总。</p>
+        <div class="metrics"><span>180 条短文本：WER 5.94% / CER 4.23%</span><span>SIM 0.742</span><span>RTF 0.875</span><span>中文 60 条：WER/CER 1.11%</span></div>
         <h3 class="subheading">参考音频</h3>
         <div class="audio-grid">
           <article class="sample">
             <h3>Reference - AISHELL-3</h3>
-            <p>与 dots.tts-mf 样例对应的普通话 prompt。</p>
+            <p>普通话 prompt，用于中文短文本与长文本样例。</p>
             <audio controls preload="metadata"><source src="assets/audio/reference-dots-tts-aishell3-ssb00050100.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Zhongli clean</h3>
+            <p>角色音色 prompt，用于动漫角色克隆和 clean reference 对照。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-dots-tts-zhongli-clean.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Zhongli noisy 10dB</h3>
+            <p>加入白噪声的角色 prompt，用于带噪参考音频测试。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-dots-tts-zhongli-noise-10db.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
         </div>
         <h3 class="subheading">生成结果</h3>
         <div class="audio-grid">
           <article class="sample">
-            <h3>dots.tts-mf</h3>
-            <p>普通话参考音频下的短文本音色克隆样例。</p>
+            <h3>dots.tts-mf - 中文短句 A</h3>
+            <p>AISHELL-3 参考音频下的中文短文本克隆样例。</p>
             <audio controls preload="metadata"><source src="assets/audio/dots-tts-mf-zh-short-content.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>dots.tts-mf - 中文短句 B</h3>
+            <p>同一普通话 prompt 下的另一条短文本生成结果。</p>
+            <audio controls preload="metadata"><source src="assets/audio/dots-tts-mf-zh-short-easy.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>dots.tts-mf - 英文短句</h3>
+            <p>英文目标文本的 zero-shot 样例；英文子集整体内容错误率高于中文子集。</p>
+            <audio controls preload="metadata"><source src="assets/audio/dots-tts-mf-en-short-easy.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>dots.tts-mf - Zhongli 角色短句</h3>
+            <p>Zhongli clean prompt 下的动漫角色音色克隆样例。</p>
+            <audio controls preload="metadata"><source src="assets/audio/dots-tts-mf-anime-zhongli-short.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>dots.tts-mf - 中文长文本</h3>
+            <p>AISHELL-3 prompt 下的长文本稳定性测试样例。</p>
+            <audio controls preload="metadata"><source src="assets/audio/dots-tts-mf-long-zh-stability.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>dots.tts-mf - 带噪参考 10dB</h3>
+            <p>使用 Zhongli 10dB 白噪声参考音频生成，展示 noisy prompt 条件。</p>
+            <audio controls preload="metadata"><source src="assets/audio/dots-tts-mf-zhongli-noise-10db.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>dots.tts-soar - Zhongli 高质量克隆</h3>
+            <p>soar 版本的角色音色克隆样例，作为 mf 之外的高质量版本补充。</p>
+            <audio controls preload="metadata"><source src="assets/audio/dots-tts-soar-anime-zhongli-quality-short.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
         </div>
       </section>
@@ -270,7 +310,7 @@
         </div>
       </section>
 
-      <footer>样例仅用于非商业研究与评测展示；仓库仅包含 6 条与展示结果对应的参考音频和 11 条生成音频，不包含训练数据或批量原始音频。</footer>
+      <footer>样例仅用于非商业研究与评测展示；仓库仅包含 8 条与展示结果对应的参考音频和 17 条生成音频，不包含训练数据或批量原始音频。</footer>
     </main>
   </body>
 </html>
