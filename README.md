@@ -1,6 +1,6 @@
 # TTS Projects
 
-这个仓库整理了三个本地语音合成项目的可公开材料，覆盖 zero-shot 语音克隆、小数据多说话人微调、自动评测和模型对比。仓库包含自写脚本、配置样例、实验报告、指标汇总、局部源码改动 patch，以及 5 条可试听的合成样例；不包含模型权重、训练数据、原始或参考音频、checkpoint 或第三方大仓库源码。
+这个仓库整理了三个本地语音合成项目的可公开材料，覆盖 zero-shot 语音克隆、小数据多说话人微调、自动评测和模型对比。仓库包含自写脚本、配置样例、实验报告、指标汇总、局部源码改动 patch，以及 9 条可试听的合成样例；不包含模型权重、训练数据、原始或参考音频、checkpoint 或第三方大仓库源码。
 
 ## 音频试听
 
@@ -8,7 +8,7 @@
 
 | 项目 | 模型与任务 | 参考条件 | 对应指标 | 试听 |
 |---|---|---|---|---|
-| CosyVoice3 原神角色 LLM-only 微调 | CosyVoice3-0.5B，四角色通用短文本，base 与 `clean_epoch_2` 对照 | 两组使用相同参考音频、目标文本和随机种子 `0` | 通用短文本四角色平均：`clean_epoch_2` CER/WER `0.00%`，SIM `0.8462`，RTF `0.546` | [在线播放](https://zhq-0.github.io/TTS/#cosyvoice3) |
+| CosyVoice3 原神角色 LLM-only 微调 | CosyVoice3-0.5B，四角色 common-line，base 与选定微调检查点对照 | 每组使用相同参考音频、目标文本和随机种子 `0` | 四角色汇总：base CER/WER `11.76%/27.27%`；`clean_epoch_0` 为 `14.71%/27.27%`，`clean_epoch_1` 为 `14.71%/29.55%` | [在线播放](https://zhq-0.github.io/TTS/#cosyvoice3) |
 | dots.tts zero-shot 对比 | `dots.tts-mf` 中文短文本 zero-shot 克隆 | AISHELL-3 普通话参考音频；示例文本为“请保持语速平稳，声音自然清晰。” | 中文短文本 60 条汇总：WER/CER `1.11%`，SIM `0.855`，RTF `0.778` | [在线播放](https://zhq-0.github.io/TTS/#dots-tts) |
 | OmniVoice 20 说话人微调 | OmniVoice，`base` 与 `finetuned_best` 对照，展示 Yelan 测试样例 | 未参与训练的验证音频作为 zero-shot prompt；固定中文短文本 | 20 说话人汇总：CER `0.83% -> 0.67%`，WER `1.39% -> 1.11%`，SIM-o `0.7544 -> 0.7632`，总体 RTF `0.1132 -> 0.1104` | [在线播放](https://zhq-0.github.io/TTS/#omnivoice) |
 
@@ -44,7 +44,7 @@ patches/
 
 ## 公开边界
 
-除下方列出的试听样例外，本仓库不公开原始数据、参考音频或批量生成结果。`assets/audio/` 仅包含表格中列出的 5 条合成展示音频。
+除下方列出的试听样例外，本仓库不公开原始数据、参考音频或批量生成结果。`assets/audio/` 仅包含表格中列出的 9 条合成展示音频。
 
 本仓库不直接提供原神语音数据、AISHELL-3 音频、模型权重或 checkpoint。报告中的指标来自本地实验环境，复现时需要自行准备数据、模型权重和对应上游仓库。
 

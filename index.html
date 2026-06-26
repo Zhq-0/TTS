@@ -144,18 +144,38 @@
 
       <section id="cosyvoice3">
         <h2>CosyVoice3 原神角色 LLM-only 微调</h2>
-        <p class="summary">四角色通用短文本，base 与 clean_epoch_2 使用相同参考音频、目标文本和随机种子。</p>
-        <div class="metrics"><span>clean_epoch_2：CER/WER 0.00%</span><span>SIM 0.8462</span><span>RTF 0.546</span></div>
+        <p class="summary">Ganyu、Paimon 与 Zhongli 的 common-line 对照。每组使用相同参考音频、目标文本和随机种子；下方为选定检查点的试听，指标为四角色汇总。</p>
+        <div class="metrics"><span>base：CER/WER 11.76% / 27.27%，SIM 0.8731，RTF 0.593</span><span>clean_epoch_0：CER/WER 14.71% / 27.27%，SIM 0.8860，RTF 0.591</span><span>clean_epoch_1：CER/WER 14.71% / 29.55%，SIM 0.8713，RTF 0.583</span></div>
         <div class="audio-grid">
           <article class="sample">
-            <h3>Base</h3>
-            <p>Yae Miko，通用中文短文本。</p>
-            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-base-yae-miko-generic-short.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+            <h3>Base - Ganyu</h3>
+            <p>common-line 试听样例。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-base-ganyu-common-line.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
           <article class="sample">
-            <h3>LLM-only 微调后</h3>
-            <p>Yae Miko，clean_epoch_2。</p>
-            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-llm-only-epoch2-yae-miko-generic-short.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+            <h3>clean_epoch_0 - Ganyu</h3>
+            <p>LLM-only 微调检查点。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-clean-epoch-0-ganyu-common-line.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Base - Paimon</h3>
+            <p>common-line 试听样例。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-base-paimon-common-line.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>clean_epoch_1 - Paimon</h3>
+            <p>LLM-only 微调检查点。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-clean-epoch-1-paimon-common-line.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Base - Zhongli</h3>
+            <p>common-line 试听样例。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-base-zhongli-common-line.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>clean_epoch_1 - Zhongli</h3>
+            <p>LLM-only 微调检查点。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-clean-epoch-1-zhongli-common-line.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
         </div>
       </section>
