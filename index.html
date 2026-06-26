@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="周桧青的语音合成项目试听样例">
+    <title>TTS 项目试听</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182230;
+        --muted: #596579;
+        --line: #d8dee8;
+        --surface: #f6f8fb;
+        --accent: #075985;
+        --accent-soft: #e0f2fe;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: #ffffff;
+        color: var(--ink);
+        font-family: "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        width: min(960px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      header {
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 24px;
+      }
+
+      h1, h2, h3, p { margin: 0; }
+
+      h1 {
+        font-size: 30px;
+        font-weight: 750;
+        line-height: 1.25;
+      }
+
+      .lede {
+        max-width: 680px;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .repo-link {
+        display: inline-block;
+        margin-top: 14px;
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+      }
+
+      section {
+        padding: 32px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      h2 {
+        font-size: 21px;
+        line-height: 1.35;
+      }
+
+      .summary {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        margin: 16px 0;
+        padding: 11px 14px;
+        background: var(--accent-soft);
+        border-left: 3px solid var(--accent);
+        color: #164e63;
+        font-size: 14px;
+      }
+
+      .audio-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .sample {
+        min-width: 0;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+
+      h3 {
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
+      .sample p {
+        min-height: 44px;
+        margin: 6px 0 12px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      audio {
+        width: 100%;
+        height: 38px;
+      }
+
+      footer {
+        padding-top: 24px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 640px) {
+        main { width: min(100% - 24px, 960px); padding-top: 28px; }
+        h1 { font-size: 26px; }
+        .audio-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>TTS 项目试听</h1>
+        <p class="lede">CosyVoice3、dots.tts 与 OmniVoice 的可复核生成样例。播放不会下载原始数据或参考音频。</p>
+        <a class="repo-link" href="https://github.com/Zhq-0/TTS">查看项目代码与完整实验报告</a>
+      </header>
+
+      <section id="cosyvoice3">
+        <h2>CosyVoice3 原神角色 LLM-only 微调</h2>
+        <p class="summary">四角色通用短文本，base 与 clean_epoch_2 使用相同参考音频、目标文本和随机种子。</p>
+        <div class="metrics"><span>clean_epoch_2：CER/WER 0.00%</span><span>SIM 0.8462</span><span>RTF 0.546</span></div>
+        <div class="audio-grid">
+          <article class="sample">
+            <h3>Base</h3>
+            <p>Yae Miko，通用中文短文本。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-base-yae-miko-generic-short.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>LLM-only 微调后</h3>
+            <p>Yae Miko，clean_epoch_2。</p>
+            <audio controls preload="metadata"><source src="assets/audio/cosyvoice3-llm-only-epoch2-yae-miko-generic-short.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+        </div>
+      </section>
+
+      <section id="dots-tts">
+        <h2>dots.tts-mf 中文 zero-shot</h2>
+        <p class="summary">AISHELL-3 普通话参考音频，目标文本为“请保持语速平稳，声音自然清晰。”</p>
+        <div class="metrics"><span>中文短文本 60 条：WER/CER 1.11%</span><span>SIM 0.855</span><span>RTF 0.778</span></div>
+        <div class="audio-grid">
+          <article class="sample">
+            <h3>dots.tts-mf</h3>
+            <p>普通话参考音频下的短文本音色克隆样例。</p>
+            <audio controls preload="metadata"><source src="assets/audio/dots-tts-mf-zh-short-content.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+        </div>
+      </section>
+
+      <section id="omnivoice">
+        <h2>OmniVoice 20 说话人微调</h2>
+        <p class="summary">Yelan 验证音频未参与训练，作为 zero-shot prompt；base 与 finetuned_best 采用固定中文短文本。</p>
+        <div class="metrics"><span>WER：0.00% -&gt; 0.00%</span><span>SIM-o：0.8297 -&gt; 0.8605</span><span>RTF：0.1041 -&gt; 0.1041</span></div>
+        <div class="audio-grid">
+          <article class="sample">
+            <h3>Base</h3>
+            <p>Yelan，未微调基础模型。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-base-yelan.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>微调后</h3>
+            <p>Yelan，finetuned_best。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-yelan.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+        </div>
+      </section>
+
+      <footer>样例均为合成结果，仅用于非商业研究与评测展示；仓库不包含训练数据、原始音频或参考音频。</footer>
+    </main>
+  </body>
+</html>

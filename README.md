@@ -4,13 +4,13 @@
 
 ## 音频试听
 
-以下均为模型生成结果，仅用于非商业研究与评测展示。音频链接与对应报告中的实验设置、指标一致；不上传原始数据、zero-shot 参考音频或批量生成结果。可在 [TTS 项目试听页](https://zhq-0.github.io/TTS/docs/) 直接播放全部样例。
+以下均为模型生成结果，仅用于非商业研究与评测展示。音频链接与对应报告中的实验设置、指标一致；不上传原始数据、zero-shot 参考音频或批量生成结果。可在 [TTS 项目试听页](https://zhq-0.github.io/TTS/) 直接播放全部样例。
 
 | 项目 | 模型与任务 | 参考条件 | 对应指标 | 试听 |
 |---|---|---|---|---|
-| CosyVoice3 原神角色 LLM-only 微调 | CosyVoice3-0.5B，四角色通用短文本，base 与 `clean_epoch_2` 对照 | 两组使用相同参考音频、目标文本和随机种子 `0` | 通用短文本四角色平均：`clean_epoch_2` CER/WER `0.00%`，SIM `0.8462`，RTF `0.546` | [在线播放](https://zhq-0.github.io/TTS/docs/#cosyvoice3) |
-| dots.tts zero-shot 对比 | `dots.tts-mf` 中文短文本 zero-shot 克隆 | AISHELL-3 普通话参考音频；示例文本为“请保持语速平稳，声音自然清晰。” | 中文短文本 60 条汇总：WER/CER `1.11%`，SIM `0.855`，RTF `0.778` | [在线播放](https://zhq-0.github.io/TTS/docs/#dots-tts) |
-| OmniVoice 20 说话人微调 | OmniVoice，`base` 与 `finetuned_best` 对照，展示 Yelan 测试样例 | 未参与训练的验证音频作为 zero-shot prompt；固定中文短文本 | Yelan：WER `0.00% -> 0.00%`，SIM-o `0.8297 -> 0.8605`，RTF `0.1041 -> 0.1041` | [在线播放](https://zhq-0.github.io/TTS/docs/#omnivoice) |
+| CosyVoice3 原神角色 LLM-only 微调 | CosyVoice3-0.5B，四角色通用短文本，base 与 `clean_epoch_2` 对照 | 两组使用相同参考音频、目标文本和随机种子 `0` | 通用短文本四角色平均：`clean_epoch_2` CER/WER `0.00%`，SIM `0.8462`，RTF `0.546` | [在线播放](https://zhq-0.github.io/TTS/#cosyvoice3) |
+| dots.tts zero-shot 对比 | `dots.tts-mf` 中文短文本 zero-shot 克隆 | AISHELL-3 普通话参考音频；示例文本为“请保持语速平稳，声音自然清晰。” | 中文短文本 60 条汇总：WER/CER `1.11%`，SIM `0.855`，RTF `0.778` | [在线播放](https://zhq-0.github.io/TTS/#dots-tts) |
+| OmniVoice 20 说话人微调 | OmniVoice，`base` 与 `finetuned_best` 对照，展示 Yelan 测试样例 | 未参与训练的验证音频作为 zero-shot prompt；固定中文短文本 | Yelan：WER `0.00% -> 0.00%`，SIM-o `0.8297 -> 0.8605`，RTF `0.1041 -> 0.1041` | [在线播放](https://zhq-0.github.io/TTS/#omnivoice) |
 
 > 说明：dots.tts 的指标是同一实验设置下 60 条中文短文本的汇总值，不代表单条示例音频；其余两行指标分别来自对应的四角色和单说话人对照结果。
 
