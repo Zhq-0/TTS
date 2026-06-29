@@ -1,4 +1,4 @@
-﻿diff --git a/cosyvoice/bin/train.py b/cosyvoice/bin/train.py
+diff --git a/cosyvoice/bin/train.py b/cosyvoice/bin/train.py
 index d650161..ad5ff6083 100644
 --- a/cosyvoice/bin/train.py
 +++ b/cosyvoice/bin/train.py

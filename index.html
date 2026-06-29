@@ -270,8 +270,8 @@
 
       <section id="omnivoice">
         <h2>OmniVoice 20 说话人微调</h2>
-        <p class="summary">Yelan 与 Nahida 的验证音频均未参与训练，作为 zero-shot prompt；base 与 finetuned_best 采用固定中文短文本。下方为单条试听，指标采用完整 20 说话人评测集汇总。</p>
-        <div class="metrics"><span>CER：0.83% -&gt; 0.67%</span><span>WER：1.39% -&gt; 1.11%</span><span>SIM-o：0.7544 -&gt; 0.7632</span><span>总体 RTF：0.1132 -&gt; 0.1104</span></div>
+        <p class="summary">使用未参与训练的验证音频作为 zero-shot prompt，对 base 与 finetuned_best 做同 prompt、同目标文本对照。指标采用短文本、中长文本、游戏专有词和中英混合共 200 条扩展文本评测汇总。</p>
+        <div class="metrics"><span>CER：4.38% -&gt; 3.98%</span><span>WER：7.12% -&gt; 6.64%</span><span>SIM-o：0.7054 -&gt; 0.7072</span></div>
         <h3 class="subheading">参考音频</h3>
         <div class="audio-grid">
           <article class="sample">
@@ -283,6 +283,26 @@
             <h3>Reference - Nahida</h3>
             <p>未参与训练的验证音频，用作 base 与微调后模型的 zero-shot prompt。</p>
             <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-nahida.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Yoimiya</h3>
+            <p>短文本 SIM 提升样例对应的 zero-shot prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-yoimiya-short-text-019.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Yelan game terms</h3>
+            <p>游戏专有词样例对应的 zero-shot prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-yelan-game-terms-018.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Kazuha</h3>
+            <p>中长文本样例对应的 zero-shot prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-kazuha-medium-long-037.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Reference - Itto</h3>
+            <p>游戏专有词样例对应的 zero-shot prompt。</p>
+            <audio controls preload="metadata"><source src="assets/audio/reference-omnivoice-itto-game-terms-002.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
         </div>
         <h3 class="subheading">生成结果</h3>
@@ -307,10 +327,50 @@
             <p>单样例：SIM-o 0.8750，UTMOS 2.0674。</p>
             <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-nahida.wav" type="audio/wav">浏览器不支持音频播放。</audio>
           </article>
+          <article class="sample">
+            <h3>Base - Yoimiya</h3>
+            <p>短文本：请继续往前走。SIM-o 0.4103。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-base-yoimiya-short-text-019.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>微调后 - Yoimiya</h3>
+            <p>同一短文本，SIM-o 0.5389，CER/WER 保持 0。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-yoimiya-short-text-019.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Base - Yelan game terms</h3>
+            <p>游戏专有词样例，SIM-o 0.6366。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-base-yelan-game-terms-018.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>微调后 - Yelan game terms</h3>
+            <p>同一文本，SIM-o 0.7476，CER/WER 保持 0。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-yelan-game-terms-018.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Base - Kazuha medium text</h3>
+            <p>中长文本样例，SIM-o 0.6869。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-base-kazuha-medium-long-037.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>微调后 - Kazuha medium text</h3>
+            <p>同一中长文本，SIM-o 0.7947，CER/WER 保持 0。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-kazuha-medium-long-037.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>Base - Itto game terms</h3>
+            <p>游戏专有词样例，SIM-o 0.4714，WER 15.38%。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-base-itto-game-terms-002.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
+          <article class="sample">
+            <h3>微调后 - Itto game terms</h3>
+            <p>同一文本，SIM-o 0.5694，WER 降至 0。</p>
+            <audio controls preload="metadata"><source src="assets/audio/omnivoice-finetuned-itto-game-terms-002.wav" type="audio/wav">浏览器不支持音频播放。</audio>
+          </article>
         </div>
       </section>
 
-      <footer>样例仅用于非商业研究与评测展示；仓库仅包含 8 条与展示结果对应的参考音频和 17 条生成音频，不包含训练数据或批量原始音频。</footer>
+      <footer>样例仅用于非商业研究与评测展示；仓库仅包含 12 条与展示结果对应的参考音频和 25 条生成音频，不包含训练数据或批量原始音频。</footer>
     </main>
   </body>
 </html>

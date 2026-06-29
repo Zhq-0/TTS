@@ -1,0 +1,34 @@
+{
+  "case_count": 200,
+  "categories": {
+    "short_text": 50,
+    "medium_long_text": 50,
+    "game_terms": 50,
+    "zh_en_mixed": 50
+  },
+  "speakers": {
+    "Alhaitham": 10,
+    "Arataki Itto": 10,
+    "Beidou": 10,
+    "Dehya": 10,
+    "Diona": 10,
+    "Gorou": 10,
+    "Kaedehara Kazuha": 10,
+    "Kamisato Ayaka": 10,
+    "Nahida": 10,
+    "Nilou": 10,
+    "Ningguang": 10,
+    "Noelle": 10,
+    "Paimon": 10,
+    "Shikanoin Heizou": 10,
+    "Thoma": 10,
+    "Tighnari": 10,
+    "Yae Miko": 10,
+    "Yelan": 10,
+    "Yoimiya": 10,
+    "Zhongli": 10
+  },
+  "cases_path": "D:\\audio\\OmniVoice\\evaluation\\genshin_20_speakers_extended_texts\\cases.jsonl",
+  "reference_manifest": "D:\\audio\\OmniVoice\\data\\genshin_20_speakers\\manifests\\dev.jsonl",
+  "note": "Each category contains 50 text-speaker cases; reference prompts are balanced across the 20-speaker dev split."
+}

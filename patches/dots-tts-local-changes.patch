@@ -1,4 +1,4 @@
-﻿diff --git a/scripts/train_dots_tts.py b/scripts/train_dots_tts.py
+diff --git a/scripts/train_dots_tts.py b/scripts/train_dots_tts.py
 index 5d2f812..df44ed9 100644
 --- a/scripts/train_dots_tts.py
 +++ b/scripts/train_dots_tts.py
