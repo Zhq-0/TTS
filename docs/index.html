@@ -151,8 +151,8 @@
 
       <section id="cosyvoice3">
         <h2>CosyVoice3 原神角色 LLM-only 微调</h2>
-        <p class="summary">Ganyu、Paimon 与 Zhongli 的 common-line 对照。每组使用相同参考音频、目标文本和随机种子；下方为选定检查点的试听，指标为四角色汇总。</p>
-        <div class="metrics"><span>base：CER/WER 11.76% / 27.27%，SIM 0.8731，RTF 0.593</span><span>clean_epoch_0：CER/WER 14.71% / 27.27%，SIM 0.8860，RTF 0.591</span><span>clean_epoch_1：CER/WER 14.71% / 29.55%，SIM 0.8713，RTF 0.583</span></div>
+        <p class="summary">四角色小数据 LLM-only 微调。下方为精选试听样例；指标采用已见/未见说话人与多文本类型共 180 case 补测汇总，批量音频不上传。</p>
+        <div class="metrics"><span>base：CER/WER 5.58% / 9.79%，SIM 0.8704，UTMOS 3.1257</span><span>clean_epoch_2：CER/WER 5.34% / 9.01%，SIM 0.8624，UTMOS 3.1448</span><span>结论：内容准确率小幅改善，音色相似度略降</span></div>
         <h3 class="subheading">参考音频</h3>
         <div class="audio-grid">
           <article class="sample">

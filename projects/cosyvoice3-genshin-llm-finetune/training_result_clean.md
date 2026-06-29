@@ -74,6 +74,38 @@ On unseen speakers, `clean_epoch_2` improves content accuracy and RTF on this di
 
 For regular short text, the base model is already perfect on ASR-based content metrics. The finetuned checkpoint does not improve content accuracy and slightly reduces average speaker similarity.
 
+## Supplementary Extended Evaluation
+
+To avoid relying on a single fixed sentence, an additional evaluation was run on
+180 text-speaker cases. The suite covers the four seen finetuning speakers
+and eight unseen Genshin speakers, with difficult short lines, generic short
+lines, game terms, medium text, and Chinese-English mixed text.
+
+| variant | n | CER | WER | pinyin no tone | SIM | UTMOS | overall RTF |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `base` | 180 | 5.58% | 9.79% | 2.46% | 0.8704 | 3.1257 | 0.5924 |
+| `clean_epoch_2` | 180 | 5.34% | 9.01% | 2.29% | 0.8624 | 3.1448 | 0.5985 |
+
+Seen speakers:
+
+| variant | n | CER | WER | SIM | UTMOS |
+|---|---:|---:|---:|---:|---:|
+| `base` | 100 | 5.48% | 9.50% | 0.8688 | 3.0998 |
+| `clean_epoch_2` | 100 | 4.76% | 8.65% | 0.8626 | 3.1014 |
+
+Unseen speakers:
+
+| variant | n | CER | WER | SIM | UTMOS |
+|---|---:|---:|---:|---:|---:|
+| `base` | 80 | 5.71% | 10.19% | 0.8725 | 3.1580 |
+| `clean_epoch_2` | 80 | 6.11% | 9.49% | 0.8621 | 3.1991 |
+
+The expanded evaluation shows a small CER/WER improvement overall, especially
+on seen speakers, but speaker similarity decreases. This supports the final
+project positioning: the CosyVoice3 run is useful for analyzing the boundary
+of small-data LLM-only finetuning on a strong base model, rather than claiming
+a stable end-to-end quality gain.
+
 ## Difference From Official Results
 
 The official local README reports public benchmark results for `Fun-CosyVoice3-0.5B-2512`: test-zh CER 1.21 / SS 78.0, test-en WER 2.24 / SS 71.8, and test-hard CER 6.71 / SS 75.8. It also reports the RL version at test-zh CER 0.81 / SS 77.4, test-en WER 1.68 / SS 69.5, and test-hard CER 5.44 / SS 75.0.
@@ -93,8 +125,8 @@ Fun-CosyVoice3-0.5B / 四角色音色克隆 / 数据清洗 / 固定条件评测
 
 - 仅更新 CosyVoice3 的 LLM 参数，冻结 Flow、HiFT 与声码器；复用清洗后的四角色训练集 1,016 条，每个角色 254 条，并重新用 `speech_tokenizer_v3.onnx` 构建 CosyVoice3 训练数据。
 - 适配 CosyVoice3 的 `CosyVoice3LM`、`CausalMaskedDiffWithDiT`、`CausalHiFTGenerator` 配置与 instruction prefix，完成 3 epoch LLM-only 微调，验证 loss 从 2.8596 降至 2.8176。
-- 建立 base 与 `clean_epoch_0/1/2` 的固定 prompt 对比流程，记录 CER、WER、拼音错误率、CampPlus 音色相似度与 RTF；困难短句上 `clean_epoch_2` 的 CER/WER 为 8.82%/22.73%，优于 base 的 11.76%/27.27%，RTF 从 0.593 降至 0.570。
-- 同时发现普通短句中 base 已接近满分，微调后声纹相似度略降，说明小数据 LLM-only 微调对强基座模型收益有限，并将该负结果用于分析数据规模、冻结模块和评测口径的影响。
+- 补充已见/未见说话人与多文本类型共 180 个 case 评测，`clean_epoch_2` 相较 base 的 CER/WER 为 5.34%/9.01% vs 5.58%/9.79%，但 SIM 从 0.8704 降至 0.8624。
+- 结合补测结果，将项目定位为强基座模型小数据 LLM-only 微调边界分析：内容准确率有小幅改善，但音色相似度存在退化风险。
 
 ## Artifacts
 
@@ -103,4 +135,5 @@ Fun-CosyVoice3-0.5B / 四角色音色克隆 / 数据清洗 / 固定条件评测
 - Generic-short metrics: `evaluation/generic_short/automatic_metrics.json`, `evaluation/generic_short/automatic_metrics.md`
 - Unseen-speaker audio outputs: `outputs/unseen_speakers/`
 - Unseen-speaker metrics: `evaluation/unseen_speakers/common_line/automatic_metrics.md`, `evaluation/unseen_speakers/generic_short/automatic_metrics.md`
+- Extended-comparison metrics: `evaluation/extended_comparison/extended_comparison_report.md`, `evaluation/extended_comparison/automatic_metrics.json`
 - Checkpoints: `exp/four_characters_llm_clean_3epoch/`

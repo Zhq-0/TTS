@@ -1,0 +1,203 @@
+{
+  "summaries": {
+    "base": {
+      "n": 180,
+      "cer": 0.05579710144927536,
+      "wer": 0.09793307086614174,
+      "pinyin_error_rate_without_tone": 0.02463768115942029,
+      "mean_sim": 0.8704089244206746,
+      "mean_utmos": 3.125685673952103,
+      "mean_rtf": 0.6119861793597777,
+      "overall_rtf": 0.5924252386860499
+    },
+    "clean_epoch_2": {
+      "n": 180,
+      "cer": 0.0533816425120773,
+      "wer": 0.09005905511811024,
+      "pinyin_error_rate_without_tone": 0.022946859903381644,
+      "mean_sim": 0.8624198039372762,
+      "mean_utmos": 3.1448384126027427,
+      "mean_rtf": 0.6185329679627479,
+      "overall_rtf": 0.5984606991391732
+    }
+  },
+  "split_summaries": [
+    {
+      "group": "seen",
+      "variant": "base",
+      "n": 100,
+      "cer": 0.05480607082630692,
+      "wer": 0.09503424657534247,
+      "pinyin_error_rate_without_tone": 0.021500843170320406,
+      "mean_sim": 0.8687696599960327,
+      "mean_utmos": 3.099811190366745,
+      "mean_rtf": 0.5982092064090583,
+      "overall_rtf": 0.5830813416382951
+    },
+    {
+      "group": "seen",
+      "variant": "clean_epoch_2",
+      "n": 100,
+      "cer": 0.047639123102866776,
+      "wer": 0.08647260273972603,
+      "pinyin_error_rate_without_tone": 0.01770657672849916,
+      "mean_sim": 0.8626372838020324,
+      "mean_utmos": 3.1013894367218016,
+      "mean_rtf": 0.6143932029340222,
+      "overall_rtf": 0.5975485903009724
+    },
+    {
+      "group": "unseen",
+      "variant": "base",
+      "n": 80,
+      "cer": 0.057126696832579184,
+      "wer": 0.10185185185185185,
+      "pinyin_error_rate_without_tone": 0.028846153846153848,
+      "mean_sim": 0.8724580049514771,
+      "mean_utmos": 3.1580287784338,
+      "mean_rtf": 0.6292073955481767,
+      "overall_rtf": 0.6056697886711946
+    },
+    {
+      "group": "unseen",
+      "variant": "clean_epoch_2",
+      "n": 80,
+      "cer": 0.06108597285067873,
+      "wer": 0.09490740740740741,
+      "pinyin_error_rate_without_tone": 0.02997737556561086,
+      "mean_sim": 0.8621479541063308,
+      "mean_utmos": 3.1991496324539184,
+      "mean_rtf": 0.6237076742486563,
+      "overall_rtf": 0.5996642359435186
+    }
+  ],
+  "category_summaries": [
+    {
+      "group": "difficult_short",
+      "variant": "base",
+      "n": 36,
+      "cer": 0.10172413793103448,
+      "wer": 0.20967741935483872,
+      "pinyin_error_rate_without_tone": 0.02413793103448276,
+      "mean_sim": 0.869469079706404,
+      "mean_utmos": 3.04325756099489,
+      "mean_rtf": 0.6111982064213888,
+      "overall_rtf": 0.6032919231163577
+    },
+    {
+      "group": "difficult_short",
+      "variant": "clean_epoch_2",
+      "n": 36,
+      "cer": 0.0896551724137931,
+      "wer": 0.18548387096774194,
+      "pinyin_error_rate_without_tone": 0.02413793103448276,
+      "mean_sim": 0.8598497791422738,
+      "mean_utmos": 3.091741621494293,
+      "mean_rtf": 0.6072762291179448,
+      "overall_rtf": 0.5997867066434023
+    },
+    {
+      "group": "game_terms",
+      "variant": "base",
+      "n": 36,
+      "cer": 0.09972677595628415,
+      "wer": 0.14386792452830188,
+      "pinyin_error_rate_without_tone": 0.01092896174863388,
+      "mean_sim": 0.8732840683725145,
+      "mean_utmos": 3.218208465311262,
+      "mean_rtf": 0.5868228449641221,
+      "overall_rtf": 0.5824031350203533
+    },
+    {
+      "group": "game_terms",
+      "variant": "clean_epoch_2",
+      "n": 36,
+      "cer": 0.11748633879781421,
+      "wer": 0.1650943396226415,
+      "pinyin_error_rate_without_tone": 0.020491803278688523,
+      "mean_sim": 0.8630850364764532,
+      "mean_utmos": 3.179167091846466,
+      "mean_rtf": 0.5978236206075995,
+      "overall_rtf": 0.5947840653826267
+    },
+    {
+      "group": "generic_short",
+      "variant": "base",
+      "n": 36,
+      "cer": 0.01016260162601626,
+      "wer": 0.015822784810126583,
+      "pinyin_error_rate_without_tone": 0.008130081300813009,
+      "mean_sim": 0.8605334030257331,
+      "mean_utmos": 3.007072193755044,
+      "mean_rtf": 0.698545807484821,
+      "overall_rtf": 0.6873418770747937
+    },
+    {
+      "group": "generic_short",
+      "variant": "clean_epoch_2",
+      "n": 36,
+      "cer": 0.0020325203252032522,
+      "wer": 0.0031645569620253164,
+      "pinyin_error_rate_without_tone": 0.0,
+      "mean_sim": 0.8565399928225411,
+      "mean_utmos": 3.1336155666245356,
+      "mean_rtf": 0.7220110520490257,
+      "overall_rtf": 0.7068023588491658
+    },
+    {
+      "group": "medium_text",
+      "variant": "base",
+      "n": 36,
+      "cer": 0.025173611111111112,
+      "wer": 0.0379746835443038,
+      "pinyin_error_rate_without_tone": 0.009548611111111112,
+      "mean_sim": 0.8834704044792387,
+      "mean_utmos": 2.963490558995141,
+      "mean_rtf": 0.542420867503428,
+      "overall_rtf": 0.5377425907113104
+    },
+    {
+      "group": "medium_text",
+      "variant": "clean_epoch_2",
+      "n": 36,
+      "cer": 0.022569444444444444,
+      "wer": 0.03481012658227848,
+      "pinyin_error_rate_without_tone": 0.008680555555555556,
+      "mean_sim": 0.879213465584649,
+      "mean_utmos": 2.9512756135728626,
+      "mean_rtf": 0.5429531025495029,
+      "overall_rtf": 0.5403027378341287
+    },
+    {
+      "group": "zh_en_mixed",
+      "variant": "base",
+      "n": 36,
+      "cer": 0.05489864864864865,
+      "wer": 0.1076388888888889,
+      "pinyin_error_rate_without_tone": 0.05489864864864865,
+      "mean_sim": 0.865287666519483,
+      "mean_utmos": 3.396399590704176,
+      "mean_rtf": 0.6209431704251287,
+      "overall_rtf": 0.6109164397121907
+    },
+    {
+      "group": "zh_en_mixed",
+      "variant": "clean_epoch_2",
+      "n": 36,
+      "cer": 0.0472972972972973,
+      "wer": 0.07291666666666667,
+      "pinyin_error_rate_without_tone": 0.0472972972972973,
+      "mean_sim": 0.8534107456604639,
+      "mean_utmos": 3.3683921694755554,
+      "mean_rtf": 0.6226008354896696,
+      "overall_rtf": 0.6149950820727141
+    }
+  ],
+  "pairwise": {
+    "complete_pairs": 180,
+    "sim_improved": 71,
+    "wer_improved": 42,
+    "cer_improved": 39,
+    "utmos_improved": 90
+  }
+}

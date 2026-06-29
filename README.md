@@ -8,7 +8,7 @@
 
 | 项目 | 模型与任务 | 参考条件 | 对应指标 | 试听 |
 |---|---|---|---|---|
-| CosyVoice3 原神角色 LLM-only 微调 | CosyVoice3-0.5B，四角色 common-line，base 与选定微调检查点对照 | 每组使用相同参考音频、目标文本和随机种子 `0` | 四角色汇总：base CER/WER `11.76%/27.27%`；`clean_epoch_0` 为 `14.71%/27.27%`，`clean_epoch_1` 为 `14.71%/29.55%` | [在线播放](https://zhq-0.github.io/TTS/#cosyvoice3) |
+| CosyVoice3 原神角色 LLM-only 微调 | CosyVoice3-0.5B，四角色小数据 LLM-only 微调，base 与 `clean_epoch_2` 对照 | 每组使用相同参考音频、目标文本和随机种子 `0`；补测不上传批量音频 | 180 case 补测：CER `5.58% -> 5.34%`，WER `9.79% -> 9.01%`，SIM `0.8704 -> 0.8624` | [在线播放](https://zhq-0.github.io/TTS/#cosyvoice3) |
 | dots.tts zero-shot 对比 | `dots.tts-mf` 中文、英文、角色、长文本和带噪参考 zero-shot 样例；补充 `dots.tts-soar` 高质量音色克隆样例 | AISHELL-3 普通话参考音频、Zhongli clean/noisy 10dB 参考音频；各样例使用对应 prompt 条件 | 180 条短文本汇总：WER `5.94%`，CER `4.23%`，SIM `0.742`，RTF `0.875`；中文 60 条 WER/CER `1.11%` | [在线播放](https://zhq-0.github.io/TTS/#dots-tts) |
 | OmniVoice 20 说话人微调 | OmniVoice，`base` 与 `finetuned_best` 对照，展示多说话人短文本、中长文本和游戏专有词样例 | 未参与训练的验证音频作为 zero-shot prompt；base 与 finetuned 使用相同 prompt 和目标文本 | 200 条扩展文本评测：CER `4.38% -> 3.98%`，WER `7.12% -> 6.64%`，SIM-o `0.7054 -> 0.7072` | [在线播放](https://zhq-0.github.io/TTS/#omnivoice) |
 
@@ -18,7 +18,7 @@
 
 | 项目 | 模型/方向 | 重点工作 | 代表结果 |
 |---|---|---|---|
-| CosyVoice3 原神角色小数据 LLM-only 微调 | CosyVoice3-0.5B | 数据清洗、LLM-only 微调、base/finetune 对比、未见说话人测试 | 困难短句中 clean_epoch_2 的 CER/WER 优于 base；普通短句复盘强基座下小数据收益边界 |
+| CosyVoice3 原神角色小数据 LLM-only 微调 | CosyVoice3-0.5B | 数据清洗、LLM-only 微调、base/finetune 对比、180 case 补测 | CER/WER 小幅改善但 SIM 下降，定位为强基座小数据 LLM-only 微调边界分析 |
 | dots.tts zero-shot 与小数据实验 | dots.tts-mf / dots.tts-soar / CosyVoice3 | 中文/英文/角色/多语言 zero-shot 对比，官方风格 WER/CER/SIM/RTF，soar LoRA 试跑 | 180 条短文本对比中 dots.tts-mf SIM 更高，CosyVoice3 WER/CER 更低 |
 | OmniVoice 20 说话人多说话人微调 | OmniVoice | 20 说话人高质量筛选、多文本类型扩展评测、base/finetuned 公平对比 | 200 条扩展文本评测中 CER 4.38% -> 3.98%，WER 7.12% -> 6.64%，SIM-o 0.7054 -> 0.7072 |
 

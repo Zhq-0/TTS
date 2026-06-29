@@ -1,0 +1,34 @@
+{
+  "case_count": 180,
+  "splits": {
+    "seen": 100,
+    "unseen": 80
+  },
+  "categories": {
+    "seen:difficult_short": 20,
+    "seen:generic_short": 20,
+    "seen:game_terms": 20,
+    "seen:medium_text": 20,
+    "seen:zh_en_mixed": 20,
+    "unseen:difficult_short": 16,
+    "unseen:generic_short": 16,
+    "unseen:game_terms": 16,
+    "unseen:medium_text": 16,
+    "unseen:zh_en_mixed": 16
+  },
+  "speakers": {
+    "Paimon": 25,
+    "Zhongli": 25,
+    "Ganyu": 25,
+    "Yae Miko": 25,
+    "Nahida": 10,
+    "Alhaitham": 10,
+    "Ningguang": 10,
+    "Tighnari": 10,
+    "Yelan": 10,
+    "Yoimiya": 10,
+    "Kamisato Ayaka": 10,
+    "Nilou": 10
+  },
+  "note": "Seen speakers use all 25 target texts; unseen speakers use 10 target texts."
+}
